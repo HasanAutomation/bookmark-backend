@@ -3,11 +3,12 @@ const {
   getBookmark,
   updateBookmark,
   deleteBookmark,
+  getBookmarks,
 } = require('../controllers/bookmark');
 
 const router = require('express').Router();
 
-router.route('/').post(createBookmark);
+router.route('/').post(createBookmark).get(getBookmarks);
 router
   .route('/:id')
   .get(getBookmark)

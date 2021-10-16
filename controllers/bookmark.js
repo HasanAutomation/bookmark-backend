@@ -13,6 +13,18 @@ exports.createBookmark = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @GET api/v1/bookmarks/
+// @desc Get all bookmarks
+// @access private
+exports.getBookmarks = asyncHandler(async (req, res, next) => {
+  const bookmarks = await Bookmark.find();
+
+  res.status(200).json({
+    success: true,
+    data: bookmarks,
+  });
+});
+
 // @GET api/v1/bookmarks/:id
 // @desc Get a bookmark
 // @access private

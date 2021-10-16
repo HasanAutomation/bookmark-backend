@@ -1,6 +1,7 @@
 require('dotenv').config();
 const morgan = require('morgan');
 const express = require('express');
+const cors = require('cors');
 const connectDB = require('./config/db');
 
 const app = express();
@@ -14,6 +15,7 @@ const errorHandler = require('./middleware/error');
 connectDB();
 
 // middlewares
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
