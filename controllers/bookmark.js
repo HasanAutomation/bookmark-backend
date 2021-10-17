@@ -17,10 +17,44 @@ exports.createBookmark = asyncHandler(async (req, res, next) => {
 // @desc Get all bookmarks
 // @access private
 exports.getBookmarks = asyncHandler(async (req, res, next) => {
-  const bookmarks = await Bookmark.find();
+  let query;
+
+  query = Bookmark.find();
+
+  let pagination = {};
+
+  if (req.query.page) {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 5;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const count = await Bookmark.countDocuments();
+
+    pagination.current = {
+      page,
+    };
+
+    if (endIndex < count) {
+      pagination.next = {
+        page: page + 1,
+        limit,
+      };
+    }
+    if (startIndex > 0) {
+      pagination.prev = {
+        page: page - 1,
+        limit,
+      };
+    }
+    query = query.skip(startIndex).limit(limit).sort({ createdAt: -1 });
+  }
+
+  const bookmarks = await query;
 
   res.status(200).json({
     success: true,
+    count: bookmarks.length,
+    pagination,
     data: bookmarks,
   });
 });
