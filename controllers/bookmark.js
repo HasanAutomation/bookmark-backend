@@ -6,6 +6,7 @@ const ErrorResponse = require('../utils/errorResponse');
 // @desc Create a bookmark
 // @access private
 exports.createBookmark = asyncHandler(async (req, res, next) => {
+  req.body.user = req.user;
   const bookmark = await Bookmark.create(req.body);
   res.status(201).json({
     success: true,
@@ -19,7 +20,7 @@ exports.createBookmark = asyncHandler(async (req, res, next) => {
 exports.getBookmarks = asyncHandler(async (req, res, next) => {
   let query;
 
-  query = Bookmark.find();
+  query = Bookmark.find({ user: req.user }).populate('user');
 
   let pagination = {};
 

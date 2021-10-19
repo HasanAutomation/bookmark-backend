@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema(
   {
@@ -21,15 +22,37 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please add a password'],
       min: [8, 'Password must be at least 8 characters'],
+      // select: false,
       match: [
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
         'Password should contain at least one uppercase,one lowercase and a special character',
       ],
     },
   },
   {
     timestamps: true,
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true },
   }
 );
+
+UserSchema.virtual('bookmarks', {
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false,
+  ref: 'Bookmark',
+});
+
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) next();
+  const salt = await bcrypt.genSalt(12);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Cascade delete for bookmarks
+UserSchema.pre('remove', async function (next) {
+  await this.model('Bookmark').deleteMany({ user: this._id });
+  next();
+});
 
 module.exports = mongoose.model('User', UserSchema);

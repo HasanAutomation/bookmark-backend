@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 5000;
 
 // routes
 const bookmarks = require('./routes/bookmark');
+const users = require('./routes/user');
 const errorHandler = require('./middleware/error');
 
 // database
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // mount routes
 app.use('/api/v1/bookmarks', bookmarks);
+app.use('/api/v1/users', users);
 
 // error
 app.use(errorHandler);

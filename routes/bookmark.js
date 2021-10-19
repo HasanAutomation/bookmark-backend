@@ -5,14 +5,15 @@ const {
   deleteBookmark,
   getBookmarks,
 } = require('../controllers/bookmark');
+const auth = require('../middleware/auth');
 
 const router = require('express').Router();
 
-router.route('/').post(createBookmark).get(getBookmarks);
+router.route('/').post(auth, createBookmark).get(auth, getBookmarks);
 router
   .route('/:id')
-  .get(getBookmark)
-  .put(updateBookmark)
-  .delete(deleteBookmark);
+  .get(auth, getBookmark)
+  .put(auth, updateBookmark)
+  .delete(auth, deleteBookmark);
 
 module.exports = router;
