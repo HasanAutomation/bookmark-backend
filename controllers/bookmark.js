@@ -29,13 +29,14 @@ exports.getBookmarks = asyncHandler(async (req, res, next) => {
     const limit = parseInt(req.query.limit, 10) || 5;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    const count = await Bookmark.countDocuments();
+    // const count = await Bookmark.countDocuments();
+    const count = await Bookmark.find({ user: req.user });
 
     pagination.current = {
       page,
     };
 
-    if (endIndex < count) {
+    if (endIndex < count.length) {
       pagination.next = {
         page: page + 1,
         limit,
