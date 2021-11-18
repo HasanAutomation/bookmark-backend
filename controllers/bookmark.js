@@ -20,36 +20,47 @@ exports.createBookmark = asyncHandler(async (req, res, next) => {
 exports.getBookmarks = asyncHandler(async (req, res, next) => {
   let query;
 
-  query = Bookmark.find({ user: req.user }).populate('user');
+  query = Bookmark.find({ user: req.user });
 
   let pagination = {};
+  let count;
 
-  if (req.query.page) {
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    // const count = await Bookmark.countDocuments();
-    const count = await Bookmark.find({ user: req.user });
-
-    pagination.current = {
-      page,
-    };
-
-    if (endIndex < count.length) {
-      pagination.next = {
-        page: page + 1,
-        limit,
-      };
-    }
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit,
-      };
-    }
-    query = query.skip(startIndex).limit(limit).sort({ createdAt: -1 });
+  if (req.query.name) {
+    query = query.find({
+      user: req.user,
+      title: { $regex: req.query.name, $options: 'i' },
+    });
+    count = await Bookmark.find({
+      user: req.user,
+      title: { $regex: req.query.name, $options: 'i' },
+    });
+  } else {
+    count = await Bookmark.find({ user: req.user });
   }
+
+  // Pagination
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 8;
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  pagination.current = {
+    page,
+  };
+
+  if (endIndex < count.length) {
+    pagination.next = {
+      page: page + 1,
+      limit,
+    };
+  }
+  if (startIndex > 0) {
+    pagination.prev = {
+      page: page - 1,
+      limit,
+    };
+  }
+  query = query.skip(startIndex).limit(limit).sort({ createdAt: -1 });
 
   const bookmarks = await query;
 
